@@ -28,7 +28,7 @@ reactor.netty.ioWorkerCount=4
 <hr>
 
 ### 테스트 결과
-```
+```sh
 BlockingEndpointIT
 health(int)             44s 827 ms
 [6] nr=6                411 ms
@@ -89,3 +89,31 @@ at java.base/java.lang.Thread.sleep(Thread.java) ~[na:na]
 Suppressed: reactor.core.publisher.FluxOnAssembly$OnAssemblyException:
 ``` 
 - 위의 오류가 발생하며, Blocking Call을 찾을 수 있다.
+
+## 해결
+- Blockhound를 다시 제거한 후, blocking call을 해결해보자.
+```JAVA
+return Mono.fromSupplier(() -> blockingFunction(sleepMs));
+```
+- 이 메소드는 Blocking Call이지만, 별도의 Scheduler를 지정해주지 않아 Event Loop 내에서 호출된다.
+- 아래와 같이 별도의 데몬 스케쥴러를 지정하여, Event Loop 밖에서 처리해줄 수 있도록 변경한다.
+```JAVA
+return Mono.fromSupplier(() -> blockingFunction(sleepMs))
+        .subscribeOn(Schedulers.boundedElastic());
+```
+### 결과
+```sh
+BlockingEndpointIT
+health(int)
+    [3] nr=3    1s 771 ms
+    [6] nr=6        19 ms
+    [1] nr=1       424 ms
+    [5] nr=5        21 ms
+    [4] nr=4       424 ms
+    [2] nr=2         7 ms
+    [8] nr=8         7 ms
+    [9] nr=9        21 ms
+    [7] nr=7    11s 38 ms
+testBlocking()  11s 38 ms
+```
+- 위와 같이, 모든 요청이 Blocking 되지 않고 정상적인 시간 내에 도달함을 알 수 있다.

@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 class BlockingEndpointIT {
     @BeforeAll
     public static void beforeAll() {
-        BlockHound.install();
+//        BlockHound.install();
         System.setProperty("reactor.netty.ioWorkerCount", "4"); // set to minimum 4, I got 16 CPU cores
     }
 

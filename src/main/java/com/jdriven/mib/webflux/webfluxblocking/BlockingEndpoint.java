@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @RestController()
 @RequestMapping("block")
@@ -16,8 +17,8 @@ public class BlockingEndpoint {
 
     @GetMapping(value = "time/{sleepMs}", produces = MediaType.TEXT_PLAIN_VALUE)
     public Mono<String> block(@PathVariable long sleepMs) {
-        return Mono.fromSupplier(() -> blockingFunction(sleepMs));
-        // enable for non blocking: .subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromSupplier(() -> blockingFunction(sleepMs))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     private String blockingFunction(long sleepMs) {
