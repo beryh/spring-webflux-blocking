@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.blockhound.BlockHound;
 
 import java.time.Duration;
 import java.util.stream.IntStream;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
 class BlockingEndpointIT {
     @BeforeAll
     public static void beforeAll() {
+        BlockHound.install();
         System.setProperty("reactor.netty.ioWorkerCount", "4"); // set to minimum 4, I got 16 CPU cores
     }
 

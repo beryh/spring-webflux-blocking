@@ -42,3 +42,50 @@ health(int)             44s 827 ms
 [9] nr=9            10s 993 ms
 testBlocking()          10s 993 ms
 ```
+
+## Blockhound
+- [Blockhound](https://github.com/reactor/BlockHound) 를 설치하여, Blocking Call을 찾을 수 있다.
+- Blockhound는 Java Agent로, 미리 정의된 blocking 메소드들이 호출될 때 오류를 발생시킨다.
+- 해당 메소드들의 byte code를 바꿔치는 식으로 사용된다.
+- 아래의 설정으로 의존성을 추가한다.<br>
+
+### Gradle
+~~~
+repositories {
+  mavenCentral()
+  // maven { url 'https://repo.spring.io/milestone' }
+  // maven { url 'https://repo.spring.io/snapshot' }
+}
+
+dependencies {
+  testCompile 'io.projectreactor.tools:blockhound:$LATEST_RELEASE'
+  // testCompile 'io.projectreactor.tools:blockhound:$LATEST_MILESTONE'
+  // testCompile 'io.projectreactor.tools:blockhound:$LATEST_SNAPSHOT'
+}
+~~~
+
+### Maven
+~~~
+<dependencies>
+  <dependency>
+    <groupId>io.projectreactor.tools</groupId>
+    <artifactId>blockhound</artifactId>
+    <version>$LATEST_RELEASE</version>
+  </dependency>
+</dependencies>
+~~~
+
+- 테스트 코드에 아래의 코드블록을 삽입 후 실행한다.
+~~~JAVA
+static {
+    Blockhound.install();
+}
+~~~
+
+### 결과
+```
+reactor.blockhound.BlockingOperationError: Blocking call! java.lang.Thread.sleep
+at java.base/java.lang.Thread.sleep(Thread.java) ~[na:na]
+Suppressed: reactor.core.publisher.FluxOnAssembly$OnAssemblyException:
+``` 
+- 위의 오류가 발생하며, Blocking Call을 찾을 수 있다.
