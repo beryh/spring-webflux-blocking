@@ -117,3 +117,10 @@ health(int)
 testBlocking()  11s 38 ms
 ```
 - 위와 같이, 모든 요청이 Blocking 되지 않고 정상적인 시간 내에 도달함을 알 수 있다.
+
+<hr>
+
+## 해결 후 Blockhound 동작 결과
+- 여전히 blocking call은 존재하지만, Event Loop 바깥으로 빠져나왔을 때 Blockhound로 오류가 탐지되는지 점검
+- 별도의 오류가 확인되지 않고, 정상적으로 호출됨
+- [How it Works](https://github.com/reactor/BlockHound/blob/master/docs/how_it_works.md) 문서를 통해 동작에 대한 상세한 내용을 확인할 수 있음
